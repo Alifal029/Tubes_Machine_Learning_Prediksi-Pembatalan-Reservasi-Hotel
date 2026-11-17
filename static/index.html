@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prediksi Pembatalan Pemesanan Hotel - Kelompok 6</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <p class="eyebrow">PRAKTIKUM MACHINE LEARNING &bull; KELOMPOK 6</p>
+      <h1>Prediksi Pembatalan Reservasi Hotel</h1>
+      <p class="subtitle">
+        Masukkan parameter pemesanan hotel untuk memprediksi apakah reservasi berisiko <strong>Dibatalkan</strong> atau <strong>Tidak Dibatalkan</strong> menggunakan model Decision Tree Classifier.
+      </p>
+    </header>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Parameter Pemesanan Hotel</h2>
+        <span class="badge-info">12 Atribut Fitur</span>
+      </div>
+
+      <form id="predictionForm" action="/predict" method="POST">
+        <div class="form-grid">
+          <!-- Tipe Hotel -->
+          <div class="form-group">
+            <label for="hotel">Tipe Hotel</label>
+            <select id="hotel" name="hotel" required>
+              <option value="City Hotel">City Hotel</option>
+              <option value="Resort Hotel">Resort Hotel</option>
+            </select>
+          </div>
+
+          <!-- Lead Time -->
+          <div class="form-group">
+            <label for="lead_time">Lead Time (Hari Pemesanan)</label>
+            <input id="lead_time" name="lead_time" type="number" min="0" max="800" value="30" required>
+            <span class="input-hint">Jarak hari reservasi hingga tanggal tiba</span>
+          </div>
+
+          <!-- Bulan Kedatangan -->
+          <div class="form-group">
+            <label for="arrival_date_month">Bulan Kedatangan</label>
+            <select id="arrival_date_month" name="arrival_date_month" required>
+              <option value="January">Januari</option>
+              <option value="February">Februari</option>
+              <option value="March">Maret</option>
+              <option value="April">April</option>
+              <option value="May">Mei</option>
+              <option value="June">Juni</option>
+              <option value="July" selected>Juli</option>
+              <option value="August">Agustus</option>
+              <option value="September">September</option>
+              <option value="October">Oktober</option>
+              <option value="November">November</option>
+              <option value="December">Desember</option>
+            </select>
+          </div>
+
+          <!-- Menginap Akhir Pekan -->
+          <div class="form-group">
+            <label for="stays_in_weekend_nights">Malam Akhir Pekan</label>
+            <input id="stays_in_weekend_nights" name="stays_in_weekend_nights" type="number" min="0" max="30" value="1" required>
+            <span class="input-hint">Sabtu / Minggu</span>
+          </div>
+
+          <!-- Menginap Hari Kerja -->
+          <div class="form-group">
+            <label for="stays_in_week_nights">Malam Hari Kerja</label>
+            <input id="stays_in_week_nights" name="stays_in_week_nights" type="number" min="0" max="60" value="2" required>
+            <span class="input-hint">Senin s.d. Jumat</span>
+          </div>
+
+          <!-- Dewasa -->
+          <div class="form-group">
+            <label for="adults">Jumlah Dewasa</label>
+            <input id="adults" name="adults" type="number" min="0" max="50" value="2" required>
+          </div>
+
+          <!-- Anak-anak -->
+          <div class="form-group">
+            <label for="children">Jumlah Anak-anak</label>
+            <input id="children" name="children" type="number" min="0" max="20" step="1" value="0" required>
+          </div>
+
+          <!-- Paket Makanan -->
+          <div class="form-group">
+            <label for="meal">Paket Makanan (Meal)</label>
+            <select id="meal" name="meal" required>
+              <option value="BB" selected>BB (Bed &amp; Breakfast)</option>
+              <option value="HB">HB (Half Board)</option>
+              <option value="FB">FB (Full Board)</option>
+              <option value="SC">SC (Self Catering)</option>
+              <option value="Undefined">Undefined (Lainnya)</option>
+            </select>
+          </div>
+
+          <!-- Segmen Pasar -->
+          <div class="form-group">
+            <label for="market_segment">Segmen Pasar (Market Segment)</label>
+            <select id="market_segment" name="market_segment" required>
+              <option value="Online TA" selected>Online TA (Travel Agent)</option>
+              <option value="Offline TA/TO">Offline TA/TO</option>
+              <option value="Direct">Direct (Langsung)</option>
+              <option value="Corporate">Corporate (Perusahaan)</option>
+              <option value="Groups">Groups (Rombongan)</option>
+              <option value="Aviation">Aviation (Penerbangan)</option>
+              <option value="Complementary">Complementary (Gratis)</option>
+              <option value="Undefined">Undefined</option>
+            </select>
+          </div>
+
+          <!-- Saluran Distribusi -->
+          <div class="form-group">
+            <label for="distribution_channel">Saluran Distribusi</label>
+            <select id="distribution_channel" name="distribution_channel" required>
+              <option value="TA/TO" selected>TA/TO (Travel Agent / Tour Operator)</option>
+              <option value="Direct">Direct</option>
+              <option value="Corporate">Corporate</option>
+              <option value="GDS">GDS (Global Distribution System)</option>
+              <option value="Undefined">Undefined</option>
+            </select>
+          </div>
+
+          <!-- Tipe Deposit -->
+          <div class="form-group">
+            <label for="deposit_type">Tipe Deposit</label>
+            <select id="deposit_type" name="deposit_type" required>
+              <option value="No Deposit" selected>No Deposit (Tanpa Jaminan)</option>
+              <option value="Non Refund">Non Refund (Tidak Dapat Dikembalikan)</option>
+              <option value="Refundable">Refundable (Dapat Dikembalikan)</option>
+            </select>
+          </div>
+
+          <!-- Tipe Pelanggan -->
+          <div class="form-group">
+            <label for="customer_type">Tipe Pelanggan (Customer Type)</label>
+            <select id="customer_type" name="customer_type" required>
+              <option value="Transient" selected>Transient (Individu)</option>
+              <option value="Transient-Party">Transient-Party</option>
+              <option value="Contract">Contract (Kontrak)</option>
+              <option value="Group">Group (Kelompok)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="submitBtn">Prediksi Pembatalan</button>
+          <button type="reset" id="resetBtn" class="secondary">Reset Form</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Hasil Prediksi -->
+    <section class="card result-card" aria-live="polite">
+      <h2>Hasil Prediksi Model</h2>
+      <p id="status" class="status">Silakan tekan tombol &ldquo;Prediksi Pembatalan&rdquo; di atas untuk menganalisis data.</p>
+      
+      <div id="result" class="result" hidden>
+        <div class="result-header">
+          <div>
+            <p class="result-label">Status Prediksi Reservasi:</p>
+            <p id="prediction" class="prediction-text">&mdash;</p>
+          </div>
+          <div id="resultBadge" class="badge">&mdash;</div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <span class="metric-label">Probabilitas Pembatalan:</span>
+            <strong id="probabilityCancel" class="metric-value">&mdash;</strong>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Probabilitas Tidak Batal:</span>
+            <strong id="probabilityNotCancel" class="metric-value">&mdash;</strong>
+          </div>
+        </div>
+
+        <div class="progress-bar-container">
+          <div id="probBar" class="progress-bar" style="width: 0%;"></div>
+        </div>
+
+        <p id="disclaimer" class="disclaimer">&mdash;</p>
+      </div>
+
+      <div id="error" class="error" hidden></div>
+    </section>
+
+    <footer>
+      <p>&copy; 2026 Praktikum Machine Learning &bull; Proyek Kelompok 6 &bull; FastAPI + Scikit-Learn Decision Tree</p>
+    </footer>
+  </main>
+</body>
+</html>
